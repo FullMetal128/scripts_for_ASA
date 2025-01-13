@@ -1,4 +1,4 @@
-/usr/bin/python3.10 -c """
+
 import json
 import sys
 import paramiko
@@ -91,4 +91,4 @@ except:
     update_bad()
 
 
-"""
+
