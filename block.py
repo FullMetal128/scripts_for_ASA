@@ -1,8 +1,7 @@
-
 import json
 import sys
 import paramiko
-import datetime
+from datetime import datetime, timedelta
 import time
 import requests
 import urllib3
@@ -13,7 +12,7 @@ password_asa = '1234567890'
 port_asa = 22
 
 ip_rvision = '10.22.20.140'
-XTOKEN = '78479506a4173b34305b9168ea15b71a839cadca3698dc70185f3c742f58032d'
+XTOKEN = '33be0503ead8909c1d1aa8f667f33971b6f6a91ca884a4208ba88bf096df5cc8'
 PROTOCOL = 'http://'
 FILTER = '?filter=[{\"property\":\"identifier\",\"operator\":\"=\",\"value\":\"{{tag.IDENTIFIER}}\"}]' 
 RVISION = '10.22.20.140'
@@ -54,15 +53,19 @@ def get_start_time() -> str:
     send_command('en')
     send_command('1234567890')
     ACL = send_command('sh clock')
-    rez = f'{ACL[1][0:2]}:{ACL[1][3:5]} {ACL[1][25:27]} {ACL[1][21:24]} {ACL[1][29:]}'
-    return rez
+    return ACL
 
 
 def add_time_range(min: int):
     send_command('en')
     send_command('1234567890')
     send_command('conf t')
-    send_command('time-range {{tag.IDENTIFIER}} \n absolute end {s}'.format(s = get_time(min)))
+    send_command('time-range {{tag.IDENTIFIER}} \n absolute end {s}'.format(s = add_minutes_to_datetime(get_start_time()[1], min))
+
+def add_minutes_to_datetime(input_string, minutes_to_add):
+    dt = datetime.strptime(input_string, "%H:%M:%S.%f UTC %a %b %d %Y")
+    updated_dt = dt + timedelta(minutes=minutes_to_add)
+    return updated_dt.strftime("%H:%M %d %b %Y")
 
 def add_ip_to_ACL():
     try:
@@ -80,39 +83,11 @@ def add_ip_to_ACL():
         None
 
 
-def delete_from_ACL(): # для удобства, потом переделать функцию под нужный список IP
-    send_command('en')
-    send_command('1234567890')
-    send_command('conf t')
-    send_command(f'no access-list TEST2 extended deny ip host 192.168.100.100 any time-range {\"{{tag.IDENTIFIER}}\"}')
-    send_command(f'no access-list PC2 extended deny ip any host 192.168.100.100 time-range {\"{{tag.IDENTIFIER}}\"}')
-
 def show_ACL() -> list:
     send_command('en')
     send_command('1234567890')
     ACL = send_command('sh access-list')
     return ACL
-
-def get_time(min: int) -> str:
-    MONTHS = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec']
-    send_command('en')
-    send_command('1234567890')
-    ACL = send_command('sh clock')
-    summ_date = datetime.datetime(int(ACL[1][26:]), MONTHS.index(ACL[1][21:24]) + 1, int(ACL[1][25:27]), int(ACL[1][0:2]), int(ACL[1][3:5])) + datetime.timedelta(minutes=min)
-    rezult2 = summ_date.strftime('%H:%M %d %B %Y')
-    return str(rezult2)
 
 
 def delete_time_range():
@@ -147,7 +122,7 @@ def update_bad():
 
 
 try:
-    a = 2 # время блокировки
+    a = 5 # время блокировки
 
     client_pre = paramiko.SSHClient()
     client_pre.load_system_host_keys()
@@ -166,11 +141,4 @@ try:
     client_pre.close()
 except:
     update_bad()
-
-
-    
-
-
-
-
 
