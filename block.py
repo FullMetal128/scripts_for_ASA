@@ -6,12 +6,11 @@ import time
 import requests
 import urllib3
 
-host_asa = '10.41.53.253'
-user_asa = 'admin'
-password_asa = '1234567890'
-port_asa = 22
+host_asa = '10.41.53.253' # заменен на переменные
+user_asa = 'admin' # заменен на переменные
+password_asa = '1234567890' # в коде заменены на переменные
+port_asa = 22 # заменен на переменные
 
-ip_rvision = '10.22.20.140'
 XTOKEN = '78479506a4173b34305b9168ea15b71a839cadca3698dc70185f3c742f58032d'
 PROTOCOL = 'http://'
 FILTER = '?filter=[{\"property\":\"identifier\",\"operator\":\"=\",\"value\":\"{{tag.IDENTIFIER}}\"}]' 
@@ -36,12 +35,6 @@ def send_command(cmd):
     return output
 
 
-def show_time_range() -> list:
-    send_command('en')
-    send_command('1234567890')#password for asa
-    return send_command('sh time-range')
-
-
 def get_list_of_IP() -> list:
     ip_deny = []
     for i in get_cisco_info(protocol=PROTOCOL, rvision=RVISION, XToken=XTOKEN, incident=\"{{tag.IDENTIFIER}}\"):
@@ -49,28 +42,28 @@ def get_list_of_IP() -> list:
             ip_deny.append(i['src_address'])
     return ip_deny
 
-def get_start_time() -> str:
+def get_start_time(passw) -> str:
     send_command('en')
-    send_command('1234567890')
+    send_command(passw)
     ACL = send_command('sh clock')
     return ACL
 
 
-def add_time_range(min: int):
+def add_time_range(min: int, passw: str):
     send_command('en')
-    send_command('1234567890')
+    send_command(passw)
     send_command('conf t')
-    send_command('time-range {{tag.IDENTIFIER}} \n absolute end {s}'.format(s = add_minutes(get_start_time()[1], min)))
+    send_command('time-range {{tag.IDENTIFIER}} \n absolute end {s}'.format(s = add_minutes(get_start_time(passw)[1], min)))
 
 def add_minutes(input_string, minutes_to_add):
     dt = datetime.strptime(input_string, '%H:%M:%S.%f UTC %a %b %d %Y')
     updated_dt = dt + timedelta(minutes=minutes_to_add)
     return updated_dt.strftime('%H:%M %d %b %Y')
 
-def add_ip_to_ACL():
+def add_ip_to_ACL(passw):
     try:
         send_command('en')
-        send_command('1234567890')
+        send_command(passw)
         send_command('conf t')
 
         if len(get_list_of_IP()) == 0:
@@ -83,16 +76,16 @@ def add_ip_to_ACL():
         None
 
 
-def show_ACL() -> list:
+def show_ACL(passw) -> list:
     send_command('en')
-    send_command('1234567890')
+    send_command(passw)
     ACL = send_command('sh access-list')
     return ACL
 
 
-def delete_time_range():
+def delete_time_range(passw):
     send_command('en')
-    send_command('1234567890')
+    send_command(passw)
     send_command('conf t')
     send_command('clear configur time-range')
 
@@ -132,8 +125,8 @@ try:
                 #functions
 
 
-    add_time_range(a)
-    add_ip_to_ACL()
+    add_time_range(a, password_asa)
+    add_ip_to_ACL(password_asa)
     update_good()
     
 
