@@ -12,7 +12,7 @@ password_asa = '1234567890'
 port_asa = 22
 
 ip_rvision = '10.22.20.140'
-XTOKEN = '33be0503ead8909c1d1aa8f667f33971b6f6a91ca884a4208ba88bf096df5cc8'
+XTOKEN = '78479506a4173b34305b9168ea15b71a839cadca3698dc70185f3c742f58032d'
 PROTOCOL = 'http://'
 FILTER = '?filter=[{\"property\":\"identifier\",\"operator\":\"=\",\"value\":\"{{tag.IDENTIFIER}}\"}]' 
 RVISION = '10.22.20.140'
@@ -60,12 +60,12 @@ def add_time_range(min: int):
     send_command('en')
     send_command('1234567890')
     send_command('conf t')
-    send_command('time-range {{tag.IDENTIFIER}} \n absolute end {s}'.format(s = add_minutes_to_datetime(get_start_time()[1], min))
+    send_command('time-range {{tag.IDENTIFIER}} \n absolute end {s}'.format(s = add_minutes(get_start_time()[1], min)))
 
-def add_minutes_to_datetime(input_string, minutes_to_add):
-    dt = datetime.strptime(input_string, "%H:%M:%S.%f UTC %a %b %d %Y")
+def add_minutes(input_string, minutes_to_add):
+    dt = datetime.strptime(input_string, '%H:%M:%S.%f UTC %a %b %d %Y')
     updated_dt = dt + timedelta(minutes=minutes_to_add)
-    return updated_dt.strftime("%H:%M %d %b %Y")
+    return updated_dt.strftime('%H:%M %d %b %Y')
 
 def add_ip_to_ACL():
     try:
@@ -141,4 +141,3 @@ try:
     client_pre.close()
 except:
     update_bad()
-
