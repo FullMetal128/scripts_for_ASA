@@ -6,21 +6,20 @@ import time
 import requests
 import urllib3
 
-host_asa = sys.argv[1] # '10.41.53.253'  заменен на переменные sys.argv[1]
-user_asa = sys.argv[2] #'admin'  заменен на переменные sys.argv[2]
-password_asa = sys.argv[3] #'1234567890' в коде заменены на переменные sys.argv[3]
-port_asa = sys.argv[4] #22 заменен на переменные sys.argv[4]
+host_asa = sys.argv[1] # 
+user_asa = sys.argv[2] #
+password_asa = sys.argv[3] #
+port_asa = sys.argv[4] #
 
-incident = sys.argv[5] #'{{tag.IDENTIFIER}}'  sys.argv[5]
-XTOKEN = sys.argv[6] #'78479506a4173b34305b9168ea15b71a839cadca3698dc70185f3c742f58032d' заменен на переменные sys.argv[6]
-PROTOCOL = sys.argv[7] # 'http://' заменен на переменные sys.argv[7]
-RVISION = sys.argv[8] # '10.22.20.140' заменен везде на переменные sys.argv[8]
+incident = sys.argv[5] #'{{tag.IDENTIFIER}}' 
+XTOKEN = sys.argv[6] #
+PROTOCOL = sys.argv[7] # 'http://' 
+RVISION = sys.argv[8] #  ip r-vision
 
 
 def get_cisco_info(protocol: str, rvision: str, XToken: str, incident:str) -> list:
     requests.packages.urllib3.disable_warnings()
     s = requests.Session()
-    #фильтр в инцидентах заменить
     incidents = s.get(protocol + rvision + '/api/v2/incidents' + '?filter=[{\"property\":\"identifier\",\"operator\":\"=\",\"value\":\"' + incident + '\"}]',
                       headers={'X-Token': XToken},
                       verify=False)
@@ -101,7 +100,7 @@ def update_good(incident: str):
     data = {'identifier': incident, 'cisco_integration': DATA_IMPORT}
     requests.post(PROTOCOL + RVISION + '/api/v2/incidents', headers={'X-Token': XTOKEN}, data=json.dumps(data), verify=False)
 
-def update_bad():
+def update_bad(incident: str):
     DATA_EXPORT = get_cisco_info(protocol=PROTOCOL, rvision=RVISION, XToken=XTOKEN, incident=incident)
     DATA_IMPORT = DATA_EXPORT
 
@@ -121,7 +120,7 @@ try:
     client_pre.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client_pre.connect(hostname=host_asa, username=user_asa, password=password_asa, port=port_asa)
     client = client_pre.invoke_shell()
-                #functions
+    #functions
 
 
     add_time_range(a, password_asa, incident)
@@ -132,4 +131,4 @@ try:
     client.close()
     client_pre.close()
 except:
-    update_bad()
+    update_bad(incident)
