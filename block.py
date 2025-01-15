@@ -6,13 +6,13 @@ import time
 import requests
 import urllib3
 
-host_asa = sys.argv[1] # 
-user_asa = sys.argv[2] #
-password_asa = sys.argv[3] #
-port_asa = sys.argv[4] #
+host_asa = sys.argv[1] 
+user_asa = sys.argv[2] 
+password_asa = sys.argv[3] 
+port_asa = sys.argv[4] 
 
 incident = sys.argv[5] #'{{tag.IDENTIFIER}}' 
-XTOKEN = sys.argv[6] #
+XTOKEN = sys.argv[6] 
 PROTOCOL = sys.argv[7] # 'http://' 
 RVISION = sys.argv[8] #  ip r-vision
 
